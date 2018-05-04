@@ -14,3 +14,5 @@ Descripción:
 	-m   Tamaño memoria L1. Omision: 20
 	-M   Tamaño memoria L2. Omision: 40
 	-v   Muestra en pantalla el registro de la simulacion
+
+Hasta el momento
