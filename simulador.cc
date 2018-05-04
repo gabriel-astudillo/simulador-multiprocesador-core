@@ -95,7 +95,7 @@ int main( int argc, char* argv[] ){
 	g_registro = new Registro(parametros.t_registro);
 	
 	
-	std::cout << "Sistema" << std::endl;
+	std::cout << "======================Sistema==========================" << std::endl;
 	std::cout << "\tProcesadores:\t\t" << std::to_string(parametros.totalProcesadores) << std::endl;
 	std::cout << "\tCores:\t\t\t" << std::to_string(parametros.totalCores) << std::endl;
 	std::cout << "\tL1 size:\t\t" << std::to_string(g_size_L1) << std::endl;
@@ -127,7 +127,7 @@ int main( int argc, char* argv[] ){
 	
 	uint32_t index;
 	try{
-		printf("\nEstadisticas\n");
+		printf("\n====================Estadisticas=======================\n\n");
 		
 		puts("---------------Utilizacion Proc y Cores----------------");
 		printf("%5s%5s%15s%15s%15s\n", "Proc", "Core", "t. Utilizado", "Reposo", "utilizacion");
@@ -140,8 +140,8 @@ int main( int argc, char* argv[] ){
 		}
 		puts("-------------------------------------------------------");
 		puts("");
-		
-		printf("%-15.15s%15s%15s\n", "t. Servicio", "Prom.", "desv." );
+		puts("-------------Tiempo de Servicio---------------");
+		printf("%-15.15s%15s%15s\n", "", "Prom.", "desv." );
 		printf("%-15.15s%15.2f%15.2f\n", "Global"    , g_tiempoServicio->m()   , sqrt(g_tiempoServicio->variance()) );
 		
 		printf("%-15.15s\n", "Detalle" );
@@ -151,8 +151,8 @@ int main( int argc, char* argv[] ){
 			for(uint32_t c=0; c < parametros.totalCores; c++){				
 				index = p*parametros.totalCores + c;
 				try{
-					printf("%d\t%d\t%14.2f%14.2f\n", p, c, g_tiempoServicioCore[index]->m()
-										 								 , sqrt(g_tiempoServicioCore[index]->variance()) );
+					printf("%d\t%d\t%14.2f%14.2f\n", p, c, g_tiempoServicioCore[index]->m() \
+										 				 , sqrt(g_tiempoServicioCore[index]->variance()) );
 				} catch (runtime_error& e){
 					try{
 						printf("%d\t%d\t%14.2f%14.2s\n", p, c, g_tiempoServicioCore[index]->m(), "-");
@@ -164,9 +164,12 @@ int main( int argc, char* argv[] ){
 				
 			}
 		}
-		
 		puts("----------------------------------------------");
-		printf("%-15.15s\n", "t. Espera Ready");
+		
+		puts("");
+		
+		puts("----------Tiempo de Espera en Ready-----------");
+		printf("%-15.15s%15s%15s\n", "", "Prom.", "desv." );
 		printf("%-15.15s%15.2f%14.2f\n", "Global", g_tiempoEsperaReady->m()
 												 , sqrt(g_tiempoEsperaReady->variance()) );
 		printf("%-15.15s\n", "Detalle" );
@@ -174,12 +177,8 @@ int main( int argc, char* argv[] ){
 		for(uint32_t p=0; p < parametros.totalProcesadores; p++){
 			printf("%5d\t\t%14.2f%14.2f\n", p, g_tiempoEsperaReadyProc[p]->m()
 					 						 , sqrt(g_tiempoEsperaReadyProc[p]->variance()) );
-			//printf("%5d\t\t%14.2f\n", p, g_tiempoEsperaReadyProc[p]->m());
 		}
 		puts("----------------------------------------------");
-		
-		
-		puts("");
 		
 
 		//g_hist_tiempoServicio->report();
