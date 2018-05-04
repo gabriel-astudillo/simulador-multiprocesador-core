@@ -15,7 +15,7 @@ Descripción:
 	-M   Tamaño memoria L2. Omision: 40
 	-v   Muestra en pantalla el registro de la simulacion
 ```
-Hasta el momento, el software entrega utilización de Procesadores y Cores, Tiempos de Servicio y Tiempos de Espera en la fila de entrada de los procesadores. Por ejemplo:
+Hasta el momento, el software entrega utilización de Procesadores y Cores, Tiempos de Servicio, Tiempos de Espera en la fila de entrada de los procesadores y Troughput. Por ejemplo:
 
 ```
 ======================Sistema==========================
