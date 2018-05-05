@@ -207,12 +207,11 @@ void coreSim::inner_body(){
 		*/	
 		tarea->setTInicioServicio(this->time());
 		
-		while( !tarea->datos.empty() ){
+		while( tarea->quedanDatos() ){
 			char datoProcesar;
 			t_dataStatus dataStatus_L1, dataStatus_L2;
 			
-			datoProcesar = tarea->datos.front();
-			tarea->datos.pop_front();
+			datoProcesar = tarea->getProxDato();
 			
 			g_registro->print(this->time(), this->getFullName(), \
 				string("PROCESAMIENTO tarea id:") + \
@@ -348,10 +347,11 @@ void coreSim::inner_body(){
 		g_hist_tiempoEsperaReady->update( deltaTimeEsperaReady );
 		
 		g_tareasFinalizadas->update(1.0);
+		g_tareasFinalizadasProc[procesador->getID()]->update(1.0);
 		
-		g_tput->update( g_tareasFinalizadas->value() / this->time() );
+		g_tput->update( g_tareasFinalizadas->value() / this->time() );; 
+		g_tputProc[procesador->getID()]->update( g_tareasFinalizadas->value() / this->time() );; 
 		
-		//g_tiempoUtilizadoCore[index] += tarea->getTservicio() ; //REVISAR
 		g_tiempoUtilizadoCore[index] += deltaTimeServicio ; 
 		
 		tarea = NULL;

@@ -32,13 +32,19 @@ typedef enum {REG_VERBOSE, REG_QUIET} t_register;
 *	Variables globales para estadisticas
 */
 extern counter*   g_tareasFinalizadas;
+extern counter**  g_tareasFinalizadasProc;
 
-extern mean*      g_tiempoEsperaReady;       //tiempo de espera en fila ready (ingreso al procesador). Consolidaddo para todos los procesadores
-extern mean**     g_tiempoEsperaReadyProc;   //tiempo de espera en fila ready (ingreso al procesador). Uno por procesador.
+extern mean*      g_tiempoEsperaReady;		//tiempo de espera en fila ready (ingreso al procesador). 
+											//Consolidaddo para todos los procesadores
+extern mean**     g_tiempoEsperaReadyProc;	//tiempo de espera en fila ready (ingreso al procesador). Uno por procesador.
 
 extern mean*      g_tiempoServicio;      //tiempo de servicio (inicio->fin de la ejecución en un core), consolidado para todos los cores
 extern mean**     g_tiempoServicioCore;  //tiempo de servicio (inicio->fin de la ejecución en un core)
-extern statistic* g_tput;                //throughput
+
+extern mean*      g_tput;       //throughput Global
+extern mean**     g_tputProc;	//throughput por procesador
+
+
 
 extern histogram* g_hist_tiempoServicio;
 extern histogram* g_hist_tiempoEsperaReady;

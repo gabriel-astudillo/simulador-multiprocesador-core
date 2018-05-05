@@ -24,13 +24,18 @@ void Registro::print(double tiempo, string quien, string mensaje){
 *	Indicadores
 */
 counter*   g_tareasFinalizadas;
+counter**  g_tareasFinalizadasProc;  
+
 mean*      g_tiempoEsperaReady;       /* Global*/
 mean**     g_tiempoEsperaReadyProc;   /* Por procesador */
 
 mean*      g_tiempoServicio;      /* Global   */
 mean**     g_tiempoServicioCore;  /* Por Core */
+    
+mean*      g_tput;		/* Global */    
+mean**     g_tputProc;	/* Por procesador */   
 
-statistic* g_tput;               
+    
 
 histogram* g_hist_tiempoServicio;
 histogram* g_hist_tiempoEsperaReady;

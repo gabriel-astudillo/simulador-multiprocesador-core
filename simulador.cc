@@ -62,6 +62,11 @@ int main( int argc, char* argv[] ){
 	*	Indicadores
 	*/
 	g_tareasFinalizadas   = new counter("Tareas_finalizadas");
+	g_tareasFinalizadasProc = new counter*[parametros.totalProcesadores];;  
+	
+	for(uint32_t p=0; p < parametros.totalProcesadores; p++){
+		g_tareasFinalizadasProc[p] = new counter("Tareas_finalizadas"); //Arreglar el nombre
+	}
 	
 	g_tiempoEsperaReady     = new mean("Espera_en_fila_Ready", .95);
 	g_tiempoEsperaReadyProc = new mean*[parametros.totalProcesadores];
@@ -79,8 +84,12 @@ int main( int argc, char* argv[] ){
 		}
 	}
 		
-	g_tput                = new mean("Troughput", .95); //Revisar
+	g_tput     = new mean("Troughput", .95);
+	g_tputProc = new mean*[parametros.totalProcesadores];
 	
+	for(uint32_t p=0; p < parametros.totalProcesadores; p++){
+		g_tputProc[p] = new mean("Troughput", .95); //Arreglar el nombre
+	}
 	
 	g_hist_tiempoServicio    = new histogram("Tiempo Servicio", 0.0, 100.0, 20);
 	g_hist_tiempoEsperaReady = new histogram("Tiempo Espera Ready", 0.0, 100.0, 20);
@@ -175,8 +184,18 @@ int main( int argc, char* argv[] ){
 		printf("%-15.15s\n", "Detalle" );
 		printf("%5s\n", "Proc");
 		for(uint32_t p=0; p < parametros.totalProcesadores; p++){
-			printf("%5d\t\t%14.2f%14.2f\n", p, g_tiempoEsperaReadyProc[p]->m()
-					 						 , sqrt(g_tiempoEsperaReadyProc[p]->variance()) );
+			try{
+				printf("%5d\t\t%14.2f%14.2f\n", p, g_tiempoEsperaReadyProc[p]->m()
+						 						 , sqrt(g_tiempoEsperaReadyProc[p]->variance()) );
+			}catch(runtime_error& e){
+				try{
+					printf("%5d\t\t%14.2f%14.2s\n", p, g_tiempoEsperaReadyProc[p]->m(), "-" );
+				}catch (runtime_error& e){
+					printf("%5d\t\t%14.2s%14.2s\n", p, "-", "-" );
+				}
+			}
+			
+			
 		}
 		puts("----------------------------------------------");
 		
@@ -189,9 +208,26 @@ int main( int argc, char* argv[] ){
 		
 		puts("");
 		puts("-----------------------Troughput-----------------------");
-		g_tput->report();
+		printf("%-10.10s%5s%15s%15s\n", "", "Tareas", "Prom.", "desv." );
+		printf("%-10.10s%5.0f%15.2f%14.2f\n", "Global", g_tareasFinalizadas->value(), g_tput->m()
+												 , sqrt(g_tput->variance()) );
+		printf("%-15.15s\n", "Detalle" );
+		printf("%5s\n", "Proc");
+		for(uint32_t p=0; p < parametros.totalProcesadores; p++){
+			try{
+				printf("%5d%10.0f%15.2f%14.2f\n", p, g_tareasFinalizadasProc[p]->value(), g_tputProc[p]->m()
+						 						 , sqrt(g_tputProc[p]->variance()) );
+			}catch(runtime_error& e){
+				try{
+					printf("%5d%10.0f%15.2f%14.2s\n", p, g_tareasFinalizadasProc[p]->value(), g_tputProc[p]->m(), "-" );
+				}catch(runtime_error& e){
+					printf("%5d%10.0f%15.2s%14.2s\n", p, g_tareasFinalizadasProc[p]->value(), "-", "-" );
+				}
+			}		
+		}
 		puts("-------------------------------------------------------");
 		puts("");
+		
 		
 	} catch (runtime_error& e){
 		std::cerr << "Error: " << e.what() <<std::endl;

@@ -46,8 +46,10 @@ void generadorTareas::inner_body(){
 			string(" Datos:") + tarea->getDatos() );
 		
 		
-		//procesador->agregarTarea(tarea);
-		procID = tareaID % totalProcesadores; //0;
+		//Asignación RR de tareas a los procesadores
+		//procID = rand() % (totalProcesadores+5); //tareaID % totalProcesadores;
+		//procID = procID > (totalProcesadores-1) ? (totalProcesadores-1) : procID;
+		procID = tareaID % totalProcesadores;
 		arr_procesador[procID]->agregarTarea(tarea);
 		
 			

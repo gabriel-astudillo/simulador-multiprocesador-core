@@ -30,6 +30,17 @@ void Tarea::agregarDato(char dato){
 	datos.push_back(dato);
 }
 
+bool Tarea::quedanDatos(){
+	return( !datos.empty() );
+}
+
+char Tarea::getProxDato(){
+	char datoProcesar;
+	datoProcesar = datos.front();
+	datos.pop_front();
+	
+	return( datoProcesar );
+}
 	
 uint32_t Tarea::getID(){
 	return(id);
