@@ -1,5 +1,9 @@
 # simulador-multiprocesador-core
 
+El diagrama de alto nivel del sistema es el siguiente:
+
+
+
 ```
 ./sim 
 Uso: ./sim -t <nro de tareas> -p <procesadores> -c <cores> -s <tasa llegada> [-l] [-L] [-m] [-M] [-v]
