@@ -2,7 +2,7 @@
 
 El diagrama de alto nivel del sistema es el siguiente:
 
-
+![diagrama]https://raw.githubusercontent.com/gabriel-astudillo/simulador-multiprocesador-core/master/docs/diagrama.png
 
 ```
 ./sim 
