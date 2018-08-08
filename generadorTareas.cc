@@ -3,38 +3,24 @@
 #include "procesador.h"
 #include "tarea.h"
 
-generadorTareas::generadorTareas(const string& _name, uint32_t _totalTareas, double _tasaLlegada, uint32_t _totalProcesadores, uint32_t _totalCores) : process(_name) {
-	double lambda = 1.0/_tasaLlegada;
+generadorTareas::generadorTareas(const string& _name, uint32_t _totalTareas, 
+                                 double _tasaLlegada) :  process(_name) {
+	double lambda = 1.0/_tasaLlegada;	
+	totalTareas   = _totalTareas;
+	name          = _name;	
 	
 	tiempoArribo = new rngExp("Tiempo de arribo", lambda);
 	tiempoArribo->reset();
-	
-	totalTareas       = _totalTareas;
-	totalProcesadores = _totalProcesadores;
-	totalCores        = _totalCores;
-	
-	name        = _name;
-	
-	/*Arreglo de procesadores*/
-		
-	arr_procesador= new handle<Procesador>[totalProcesadores];
-	
-	for(uint32_t i = 0; i < totalProcesadores; i++){
-		arr_procesador[i] = new Procesador( string("Proc") + string(std::to_string(i)) , i, totalCores);
-	}
-	
 }
 
+void generadorTareas::asociarProcesadores(vector< handle<Procesador> > _vector_procesadores){
+	vector_procesadores = _vector_procesadores;
+}
 
 void generadorTareas::inner_body(){
 	Tarea *tarea;
 	double tHold;
 	uint32_t procID;
-	
-	/* Activar procesadores */
-	for(uint32_t i = 0; i < totalProcesadores; i++){
-		arr_procesador[i]->activate();
-	}
 	
 	for(uint32_t tareaID=0; tareaID < totalTareas; tareaID+=1){
 		
@@ -47,15 +33,14 @@ void generadorTareas::inner_body(){
 		
 		
 		//Asignación RR de tareas a los procesadores
-		//procID = rand() % (totalProcesadores+5); //tareaID % totalProcesadores;
-		//procID = procID > (totalProcesadores-1) ? (totalProcesadores-1) : procID;
-		procID = tareaID % totalProcesadores;
-		arr_procesador[procID]->agregarTarea(tarea);
+		procID = tareaID % vector_procesadores.size();
+		vector_procesadores[procID]->agregarTarea(tarea);
 		
 			
 		tHold = tiempoArribo->value();		
 		hold(tHold);
 	}
+	
 	
 }
 

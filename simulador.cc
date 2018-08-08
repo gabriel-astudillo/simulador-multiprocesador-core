@@ -4,7 +4,8 @@
 #include "generadorTareas.h"
 #include "procesador.h"
 
-class sistema: public process {
+//class sistema: public process {
+class sistema: public generadorTareas{
 	
 private:
 	double simLen;
@@ -15,11 +16,14 @@ private:
 	double tasaLlegada;
 	
 	handle<generadorTareas> generador;
-	handle<Procesador>      procesador;
+	
+	vector< handle<Procesador> > vector_procesadores;
 	
 	
 public:
-	sistema( const string& _name, double _sl, uint32_t _totalTareas, uint32_t _totalProcesadores, uint32_t _totalCores, double _tasaLlegada) : process( _name ) {
+	sistema(const string& _name, double _sl,
+	        uint32_t _totalProcesadores, uint32_t _totalCores, 
+			uint32_t _totalTareas, double _tasaLlegada) : generadorTareas(_name, _totalTareas, _tasaLlegada)  {
 			 
 		simLen      = _sl;
 		totalTareas = _totalTareas;
@@ -27,6 +31,17 @@ public:
 		
 		totalCores        = _totalCores;
 		totalProcesadores = _totalProcesadores;	
+		
+		/*Arreglo de procesadores*/
+		vector_procesadores.clear();
+	
+		for(uint32_t i = 0; i < totalProcesadores; i++){
+			Procesador *dummy = new Procesador( string("Proc") + string(std::to_string(i)) , i, totalCores);
+			vector_procesadores.push_back(dummy);
+		}
+
+		generadorTareas::asociarProcesadores(vector_procesadores);
+		
 	
 	}
 
@@ -37,15 +52,123 @@ protected:
 
 void sistema::inner_body( void ){
 	
-	generador  = new generadorTareas("Gen01", totalTareas, tasaLlegada, totalProcesadores, totalCores);
-
+	//generador  = new generadorTareas("Gen01", totalTareas, tasaLlegada, totalProcesadores, totalCores);
+	/*generador  = new generadorTareas("Gen01", totalTareas, tasaLlegada);
+	generador->asociarProcesadores(vector_procesadores);
 	generador->activate();
-
 	hold(simLen);
-	generador->cancel();
+	generador->cancel();*/
 	
-	end_simulation();
 
+	generadorTareas::inner_body();
+	
+	
+	/*generadorTareas::activate();
+	hold(simLen);
+	generadorTareas::cancel();*/
+	
+	
+	//sistema::end_simulation();
+
+}
+
+void mostrar_estadisticas(){
+	uint32_t index;
+
+	printf("\n====================Estadisticas=======================\n\n");
+	
+	puts("------------------------------------------------");
+	printf("Tiempo Simulacion: %10.4f\n", g_tiempoTotalSimulacion);
+	puts("------------------------------------------------");
+	
+	puts("");
+	puts("---------------Utilizacion Proc y Cores----------------");
+	
+	printf("%5s%5s%15s%15s%15s\n", "Proc", "Core", "t. Utilizado", "Reposo", "utilizacion");
+	for(uint32_t p=0; p < parametros.totalProcesadores; p++){
+		for(uint32_t c=0; c<parametros.totalCores; c++){
+			index = p*parametros.totalCores + c;
+			double utilizacion = g_tiempoUtilizadoCore[index] > 0 ? (1.0 - g_tiempoReposoCore[index]/g_tiempoUtilizadoCore[index]) : 0.0;
+			printf("%5i%5i%15f%15f%15f\n", p, c, g_tiempoUtilizadoCore[index], g_tiempoReposoCore[index], utilizacion);		
+		}
+	}
+	
+	puts("-------------------------------------------------------");
+	puts("");
+	puts("-------------Tiempo de Servicio---------------");
+	
+	printf("%-15.15s%15s%15s\n", "", "Prom.", "desv." );
+	printf("%-15.15s%15.2f%15.2f\n", "Global"    , g_tiempoServicio->m()   , sqrt(g_tiempoServicio->variance()) );	
+	printf("%-15.15s\n", "Detalle" );
+	printf("Proc\tCore\n");
+
+	for(uint32_t p=0; p < parametros.totalProcesadores; p++){
+		for(uint32_t c=0; c < parametros.totalCores; c++){				
+			index = p*parametros.totalCores + c;
+			try{
+				printf("%d\t%d\t%14.2f%14.2f\n", p, c, g_tiempoServicioCore[index]->m() \
+									 				 , sqrt(g_tiempoServicioCore[index]->variance()) );
+			} catch (runtime_error& e){
+				try{
+					printf("%d\t%d\t%14.2f%14.2s\n", p, c, g_tiempoServicioCore[index]->m(), "-");
+				}catch (runtime_error& e){
+					printf("%d\t%d\t%14.2s%14.2s\n", p, c, "-", "-");
+				}
+
+			}		
+			
+		}
+	}
+	
+	puts("----------------------------------------------");		
+	puts("");		
+	puts("----------Tiempo de Espera en Ready-----------");
+	
+	printf("%-15.15s%15s%15s\n", "", "Prom.", "desv." );
+	printf("%-15.15s%15.2f%14.2f\n", "Global", g_tiempoEsperaReady->m()
+											 , sqrt(g_tiempoEsperaReady->variance()) );
+	printf("%-15.15s\n", "Detalle" );
+	printf("%5s\n", "Proc");
+	for(uint32_t p=0; p < parametros.totalProcesadores; p++){
+		try{
+			printf("%5d\t\t%14.2f%14.2f\n", p, g_tiempoEsperaReadyProc[p]->m()
+					 						 , sqrt(g_tiempoEsperaReadyProc[p]->variance()) );
+		}catch(runtime_error& e){
+			try{
+				printf("%5d\t\t%14.2f%14.2s\n", p, g_tiempoEsperaReadyProc[p]->m(), "-" );
+			}catch (runtime_error& e){
+				printf("%5d\t\t%14.2s%14.2s\n", p, "-", "-" );
+			}
+		}
+		
+		
+	}
+	
+	puts("----------------------------------------------");		
+	puts("");
+	puts("-----------------------Troughput-----------------------");
+	
+	printf("%-10.10s%5s%15s%15s\n", "", "Tareas", "Prom.", "desv." );
+	printf("%-10.10s%5.0f%15.2f%14.2f\n", "Global", g_tareasFinalizadas->value(), g_tput->m()
+											 , sqrt(g_tput->variance()) );
+	printf("%-15.15s\n", "Detalle" );
+	printf("%5s\n", "Proc");
+	for(uint32_t p=0; p < parametros.totalProcesadores; p++){
+		try{
+			printf("%5d%10.0f%15.2f%14.2f\n", p, g_tareasFinalizadasProc[p]->value(), g_tputProc[p]->m()
+					 						 , sqrt(g_tputProc[p]->variance()) );
+		}catch(runtime_error& e){
+			try{
+				printf("%5d%10.0f%15.2f%14.2s\n", p, g_tareasFinalizadasProc[p]->value(), g_tputProc[p]->m(), "-" );
+			}catch(runtime_error& e){
+				printf("%5d%10.0f%15.2s%14.2s\n", p, g_tareasFinalizadasProc[p]->value(), "-", "-" );
+			}
+		}		
+	}
+	
+	puts("-------------------------------------------------------");
+	puts("");
+	
 }
 
 int main( int argc, char* argv[] ){
@@ -61,7 +184,7 @@ int main( int argc, char* argv[] ){
 	/*
 	*	Indicadores
 	*/
-	g_tareasFinalizadas   = new counter("Tareas_finalizadas");
+	g_tareasFinalizadas     = new counter("Tareas_finalizadas");
 	g_tareasFinalizadasProc = new counter*[parametros.totalProcesadores];;  
 	
 	for(uint32_t p=0; p < parametros.totalProcesadores; p++){
@@ -91,17 +214,17 @@ int main( int argc, char* argv[] ){
 		g_tputProc[p] = new mean("Troughput", .95); //Arreglar el nombre
 	}
 	
-	g_hist_tiempoServicio    = new histogram("Tiempo Servicio", 0.0, 100.0, 20);
-	g_hist_tiempoEsperaReady = new histogram("Tiempo Espera Ready", 0.0, 100.0, 20);
+	g_tiempoUtilizadoCore = new double[parametros.totalProcesadores*parametros.totalCores];
+	g_tiempoReposoCore    = new double[parametros.totalProcesadores*parametros.totalCores];
 	
-	g_tiempoUtilizadoCore = (double*) calloc(parametros.totalProcesadores*parametros.totalCores, sizeof(double) );
-	g_tiempoReposoCore    = (double*) calloc(parametros.totalProcesadores*parametros.totalCores, sizeof(double) );;
 	
 	/*
 	*	Objeto utilizado para realizar
 	*	el log del sistema
 	*/
 	g_registro = new Registro(parametros.t_registro);
+	
+	g_tiempoTotalSimulacion = 0.0;
 	
 	
 	std::cout << "======================Sistema==========================" << std::endl;
@@ -117,122 +240,24 @@ int main( int argc, char* argv[] ){
 	
 
 	
-	simulation::instance()->begin_simulation( new sqsDll( ) );
+	simulation::instance()->begin_simulation( new sqsDll() );
 
 	handle<sistema> system = new sistema("System main", 
-										1e100,                       /*Tiempo total de simulación*/
-										parametros.totalTareas,      /*Cantidad de tareas        */
+										1e50,                        /*FIXIT: Tiempo total de simulación*/										
 										parametros.totalProcesadores,/*Cantidad de procesadores  */ 
 										parametros.totalCores,       /*Cantidad de cores         */
+										parametros.totalTareas,      /*Cantidad de tareas        */
 										parametros.tasaLlegada
 										) ;
 
 	system->activate();
 
 	simulation::instance()->run();
+	
 
 	simulation::instance()->end_simulation();
 	
-	
-	uint32_t index;
-	try{
-		printf("\n====================Estadisticas=======================\n\n");
-		
-		puts("---------------Utilizacion Proc y Cores----------------");
-		printf("%5s%5s%15s%15s%15s\n", "Proc", "Core", "t. Utilizado", "Reposo", "utilizacion");
-		for(uint32_t p=0; p < parametros.totalProcesadores; p++){
-			for(uint32_t c=0; c<parametros.totalCores; c++){
-				index = p*parametros.totalCores + c;
-				double utilizacion = g_tiempoUtilizadoCore[index] > 0 ? (1.0 - g_tiempoReposoCore[index]/g_tiempoUtilizadoCore[index]) : 0.0;
-				printf("%5i%5i%15f%15f%15f\n", p, c, g_tiempoUtilizadoCore[index], g_tiempoReposoCore[index], utilizacion);		
-			}
-		}
-		puts("-------------------------------------------------------");
-		puts("");
-		puts("-------------Tiempo de Servicio---------------");
-		printf("%-15.15s%15s%15s\n", "", "Prom.", "desv." );
-		printf("%-15.15s%15.2f%15.2f\n", "Global"    , g_tiempoServicio->m()   , sqrt(g_tiempoServicio->variance()) );
-		
-		printf("%-15.15s\n", "Detalle" );
-		printf("Proc\tCore\n");
-	
-		for(uint32_t p=0; p < parametros.totalProcesadores; p++){
-			for(uint32_t c=0; c < parametros.totalCores; c++){				
-				index = p*parametros.totalCores + c;
-				try{
-					printf("%d\t%d\t%14.2f%14.2f\n", p, c, g_tiempoServicioCore[index]->m() \
-										 				 , sqrt(g_tiempoServicioCore[index]->variance()) );
-				} catch (runtime_error& e){
-					try{
-						printf("%d\t%d\t%14.2f%14.2s\n", p, c, g_tiempoServicioCore[index]->m(), "-");
-					}catch (runtime_error& e){
-						printf("%d\t%d\t%14.2s%14.2s\n", p, c, "-", "-");
-					}
-
-				}		
-				
-			}
-		}
-		puts("----------------------------------------------");
-		
-		puts("");
-		
-		puts("----------Tiempo de Espera en Ready-----------");
-		printf("%-15.15s%15s%15s\n", "", "Prom.", "desv." );
-		printf("%-15.15s%15.2f%14.2f\n", "Global", g_tiempoEsperaReady->m()
-												 , sqrt(g_tiempoEsperaReady->variance()) );
-		printf("%-15.15s\n", "Detalle" );
-		printf("%5s\n", "Proc");
-		for(uint32_t p=0; p < parametros.totalProcesadores; p++){
-			try{
-				printf("%5d\t\t%14.2f%14.2f\n", p, g_tiempoEsperaReadyProc[p]->m()
-						 						 , sqrt(g_tiempoEsperaReadyProc[p]->variance()) );
-			}catch(runtime_error& e){
-				try{
-					printf("%5d\t\t%14.2f%14.2s\n", p, g_tiempoEsperaReadyProc[p]->m(), "-" );
-				}catch (runtime_error& e){
-					printf("%5d\t\t%14.2s%14.2s\n", p, "-", "-" );
-				}
-			}
-			
-			
-		}
-		puts("----------------------------------------------");
-		
-
-		//g_hist_tiempoServicio->report();
-		//puts("-----");
-		
-		//g_hist_tiempoEsperaReady->report();
-		//puts("-----");
-		
-		puts("");
-		puts("-----------------------Troughput-----------------------");
-		printf("%-10.10s%5s%15s%15s\n", "", "Tareas", "Prom.", "desv." );
-		printf("%-10.10s%5.0f%15.2f%14.2f\n", "Global", g_tareasFinalizadas->value(), g_tput->m()
-												 , sqrt(g_tput->variance()) );
-		printf("%-15.15s\n", "Detalle" );
-		printf("%5s\n", "Proc");
-		for(uint32_t p=0; p < parametros.totalProcesadores; p++){
-			try{
-				printf("%5d%10.0f%15.2f%14.2f\n", p, g_tareasFinalizadasProc[p]->value(), g_tputProc[p]->m()
-						 						 , sqrt(g_tputProc[p]->variance()) );
-			}catch(runtime_error& e){
-				try{
-					printf("%5d%10.0f%15.2f%14.2s\n", p, g_tareasFinalizadasProc[p]->value(), g_tputProc[p]->m(), "-" );
-				}catch(runtime_error& e){
-					printf("%5d%10.0f%15.2s%14.2s\n", p, g_tareasFinalizadasProc[p]->value(), "-", "-" );
-				}
-			}		
-		}
-		puts("-------------------------------------------------------");
-		puts("");
-		
-		
-	} catch (runtime_error& e){
-		std::cerr << "Error: " << e.what() <<std::endl;
-	}
-	
+	mostrar_estadisticas();	
 
 	return(EXIT_SUCCESS);
 }

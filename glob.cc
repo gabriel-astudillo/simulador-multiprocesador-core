@@ -35,10 +35,6 @@ mean**     g_tiempoServicioCore;  /* Por Core */
 mean*      g_tput;		/* Global */    
 mean**     g_tputProc;	/* Por procesador */   
 
-    
-
-histogram* g_hist_tiempoServicio;
-histogram* g_hist_tiempoEsperaReady;
 
 double*    g_tiempoUtilizadoCore;
 double*    g_tiempoReposoCore;   /*tiempo de espera debido a transferencia de datos entre memorias*/
@@ -56,6 +52,11 @@ double TR_RAM_L2;
 */
 uint8_t g_size_L1;// = 20;
 uint8_t g_size_L2;// = 40;
+
+/*
+*	Tiempo total de simulacion	
+*/
+double g_tiempoTotalSimulacion;
 
 
 Registro* g_registro;

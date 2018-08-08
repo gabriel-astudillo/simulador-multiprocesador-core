@@ -1,22 +1,23 @@
 #ifndef _PROCESADOR_H_
 #define _PROCESADOR_H_
 
+#include "coreSim.h"
 #include "tarea.h"
 #include "memoria.h"
 
-class coreSim ;
-class Procesador;
+
+class coreSim;
 
 class Procesador : public process, public Memoria {
 private:
 	string name;
 	uint32_t procID;
-	list<Tarea*> filaTareas; /*Tareas a repartir entre los cores*/
+	list<Tarea*> filaTareas; //Tareas a repartir entre los cores
 	Registro *registro;
 	 
 	list< handle<coreSim> > cores;
 	
-	uint8_t size_L2; /*Tamaño memoria cache L2*/
+	uint8_t size_L2; //Tamaño memoria cache L2
 	
 	uint32_t totalCores;
 	bool esperandoPorCore;
@@ -38,34 +39,6 @@ public:
 	virtual string getName();
 	uint32_t getTotalCores();
 
-};
-
-class coreSim : public process, public Memoria{
-private:
-	uint8_t size_L1; /*Tamaño memoria cache L1*/
-	
-	string name;
-	uint32_t coreID;
-	Registro *registro;
-	
-	handle<Procesador> procesador;
-	Tarea *tarea;
-	
-protected:
-	void inner_body();
-	
-public:
-	coreSim(const string& _name, uint32_t _coreID);
-	virtual ~coreSim();
-	void agregarTarea(Tarea* _tarea);
-	void asociarProcesador(handle<Procesador> _procesador);
-	bool tieneTareaAsignada();
-	
-	uint32_t getID();
-	string getName();
-	string getFullName();
-
-	
 };
 
 

@@ -3,27 +3,21 @@
 
 #include "procesador.h"
 
-class generadorTareas : public process {
+class generadorTareas :  public process {
 private:
 	
 	rng<double>* tiempoArribo;
 	uint32_t     totalTareas;
-	
-	uint32_t     totalProcesadores;
-	uint32_t     totalCores;
-	
 	string       name;
 	
-	handle<Procesador> * arr_procesador;
-	
-	
-	Registro *registro;
+	vector< handle<Procesador> > vector_procesadores;
 	
 protected:
 	void inner_body();
 	
 public:
-	generadorTareas(const string& _name, uint32_t totalTareas, double _tasaLlegada, uint32_t _totalProcesadores, uint32_t _totalCores);
+	generadorTareas(const string& _name, uint32_t totalTareas, double _tasaLlegada);
+	void asociarProcesadores(vector< handle<Procesador> > vector_procesadores);
 	virtual ~generadorTareas();
 	
 };

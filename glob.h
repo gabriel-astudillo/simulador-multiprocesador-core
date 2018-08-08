@@ -45,10 +45,6 @@ extern mean*      g_tput;       //throughput Global
 extern mean**     g_tputProc;	//throughput por procesador
 
 
-
-extern histogram* g_hist_tiempoServicio;
-extern histogram* g_hist_tiempoEsperaReady;
-
 extern double TR_L2_L1;
 extern double TR_RAM_L2;
 
@@ -58,7 +54,7 @@ extern uint8_t g_size_L1;
 extern double *g_tiempoUtilizadoCore;
 extern double *g_tiempoReposoCore;      //tiempo de espera debido a transferencia de datos entre memorias
 
-
+extern double g_tiempoTotalSimulacion;
 
 class Registro {
 private:
