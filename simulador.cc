@@ -17,7 +17,7 @@ private:
 	
 	handle<generadorTareas> generador;
 	
-	vector< handle<Procesador> > vector_procesadores;
+	vector< handle<Procesador> > _procesadores;
 	
 	
 public:
@@ -33,14 +33,14 @@ public:
 		totalProcesadores = _totalProcesadores;	
 		
 		/*Arreglo de procesadores*/
-		vector_procesadores.clear();
+		_procesadores.clear();
 	
 		for(uint32_t i = 0; i < totalProcesadores; i++){
 			Procesador *dummy = new Procesador( string("Proc") + string(std::to_string(i)) , i, totalCores);
-			vector_procesadores.push_back(dummy);
+			_procesadores.push_back(dummy);
 		}
 
-		generadorTareas::asociarProcesadores(vector_procesadores);
+		generadorTareas::asociarProcesadores(_procesadores);
 		
 	
 	}
@@ -54,7 +54,7 @@ void sistema::inner_body( void ){
 	
 	//generador  = new generadorTareas("Gen01", totalTareas, tasaLlegada, totalProcesadores, totalCores);
 	/*generador  = new generadorTareas("Gen01", totalTareas, tasaLlegada);
-	generador->asociarProcesadores(vector_procesadores);
+	generador->asociarProcesadores(_procesadores);
 	generador->activate();
 	hold(simLen);
 	generador->cancel();*/

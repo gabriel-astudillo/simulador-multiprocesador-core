@@ -13,8 +13,8 @@ generadorTareas::generadorTareas(const string& _name, uint32_t _totalTareas,
 	tiempoArribo->reset();
 }
 
-void generadorTareas::asociarProcesadores(vector< handle<Procesador> > _vector_procesadores){
-	vector_procesadores = _vector_procesadores;
+void generadorTareas::asociarProcesadores(vector< handle<Procesador> > _procesadores){
+	_procesadores = _procesadores;
 }
 
 void generadorTareas::inner_body(){
@@ -33,8 +33,8 @@ void generadorTareas::inner_body(){
 		
 		
 		//Asignación RR de tareas a los procesadores
-		procID = tareaID % vector_procesadores.size();
-		vector_procesadores[procID]->agregarTarea(tarea);
+		procID = tareaID % _procesadores.size();
+		_procesadores[procID]->agregarTarea(tarea);
 		
 			
 		tHold = tiempoArribo->value();		

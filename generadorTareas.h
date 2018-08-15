@@ -10,14 +10,14 @@ private:
 	uint32_t     totalTareas;
 	string       name;
 	
-	vector< handle<Procesador> > vector_procesadores;
+	vector< handle<Procesador> > _procesadores;
 	
 protected:
 	void inner_body();
 	
 public:
 	generadorTareas(const string& _name, uint32_t totalTareas, double _tasaLlegada);
-	void asociarProcesadores(vector< handle<Procesador> > vector_procesadores);
+	void asociarProcesadores(vector< handle<Procesador> > _procesadores);
 	virtual ~generadorTareas();
 	
 };
