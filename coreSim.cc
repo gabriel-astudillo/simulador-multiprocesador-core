@@ -231,10 +231,6 @@ string coreSim::getFullName(){
 	return(procesador->getName() + getName());
 }
 
-uint32_t coreSim::getID(){
-	return(coreID);
-}
-
 coreSim::~coreSim(){
 	
 }

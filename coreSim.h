@@ -30,7 +30,6 @@ public:
 	void asociarProcesador(handle<Procesador> _procesador);
 	bool tieneTareaAsignada();
 	
-	uint32_t getID();
 	string getName();
 	string getFullName();
 
